@@ -25,7 +25,7 @@
     </div>
  </div>
 <van-calendar 
-v-model:show="showCalendar"
+ v-model:show="showCalendar"
   type="range"
   @confirm="onConfirm"
   color='#ff9854'
@@ -46,6 +46,12 @@ v-model:show="showCalendar"
    </template>
 
  </div>
+ <!-- 搜索按钮 -->
+ <div class="section search-btn">
+   <div class="btn" @click="searchClick">开始搜索</div>
+ </div>
+ <!-- 推荐类别 -->
+ 
 </div>
 </template>
 
@@ -54,6 +60,7 @@ import {ref} from 'vue'
 import {useRouter} from 'vue-router'
 import useCityStore from '@/store/modules/city'
 import {formateDate,getDiffDate} from '@/utils/format-date'
+import { storeToRefs } from 'pinia';
 const router=useRouter();
 // 定义props
 defineProps({
@@ -63,6 +70,7 @@ defineProps({
   }
 })
 const cityStore=useCityStore()
+const {currentCity}=storeToRefs(cityStore)
  const positionClcik=()=>{
      navigator.geolocation.getCurrentPosition((res)=>{
          console.log("获取成功",res)
@@ -83,9 +91,9 @@ const nowDate=new Date()
 const newDate=new Date()
 nowDate.setDate(nowDate.getDate()+1)
 
-const startDate=ref(formateDate(nowDate));
-const endDate=ref(formateDate(newDate))
-const stayCount=ref(getDiffDate(nowDate,newDate))
+const startDate=ref(formateDate(newDate));
+const endDate=ref(formateDate(nowDate))
+const stayCount=ref(getDiffDate(newDate,nowDate))
 
 const showCalendar=ref(false)
 const onConfirm=(value)=>{
@@ -96,6 +104,17 @@ startDate.value=formateDate(selecttStartDate);
 endDate.value=formateDate(selectEndDate);
 stayCount.value=getDiffDate(selecttStartDate,selectEndDate)
 showCalendar.value=false;
+}
+// 搜索
+const searchClick=()=>{
+  router.push({
+    path:'/search',
+    query:{
+      startDate:startDate.value,
+      endDate:endDate.value,
+      currentCity:currentCity.value.cityName
+    }
+  })
 }
  </script>
 <style scoped lang="less">
@@ -185,6 +204,7 @@ price-counter {
 }
 .hot-suggests {
   margin: 10px 0;
+  height: auto;
 
   .item {
     font-size: 12px;
@@ -193,6 +213,23 @@ price-counter {
     border-radius: 14px;
     color: #3f4954;
     background-color: #f1f3f5;
+  }
+}
+.search-btn {
+  .btn {
+    width: 342px;
+    height: 38px;
+    max-height: 50px;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 38px;
+    text-align: center;
+    border-radius: 20px;
+    color: #fff;
+    background-image: var(
+      --tjc-theme-linear-gradient,
+      linear-gradient(90deg, #fa8c1d, #fcaf3f)
+    );
   }
 }
 
